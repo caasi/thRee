@@ -9,8 +9,8 @@ var thRee = {
   join: function(id, user) {
     users[id] = user;
 
-    user.on("say", function(str) {
-      logs.push({ name: user.name, text: str, type: "history" });
+    user.on("say", function(str, unixtime) {
+      logs.push({ name: user.name, text: str, type: "history", time: unixtime });
     });
   },
   leave: function(id) {

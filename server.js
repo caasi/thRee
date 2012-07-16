@@ -5,16 +5,16 @@ var User    = require("./user");
 var thRee   = require("./three");
 
 var SocketUser = function(user, socket) {
-  user.on("say", function(str) {
+  user.on("say", function(str, unixtime) {
     logger.chat(user.name.yellow + ": ".magenta + str);
-    socket.broadcast.emit("log", { name: user.name, text: str, type: "say" });
+    socket.broadcast.emit("log", { name: user.name, text: str, type: "say", time: unixtime });
   });
 
-  user.on("hear", function(talker, str) {
+  user.on("hear", function(talker, str, unixtime) {
     if (talker !== user) {
       logger.chat(talker.name.yellow + "->".magenta + user.name.yellow + ": ".magenta + str);
     }
-    socket.emit("log", { name: talker.name, text: str, type: "whisper" });
+    socket.emit("log", { name: talker.name, text: str, type: "whisper", time: unixtime });
   });
 
   user.on("did updated", function(key, value) {

@@ -14,15 +14,15 @@ User = function(name) {
     },
     say: function(str) {
       if (str.charAt(0) === "/") {
-        this.emit("exec", str.substring(1));
+        this.emit("exec", str.substring(1), new Date().getTime());
       } else {
-        this.emit("say", str);
+        this.emit("say", str, new Date().getTime());
       }
 
       return this;
     },
     hear: function(talker, str) {
-      this.emit("hear", talker, str);
+      this.emit("hear", talker, str, new Date().getTime());
 
       return this;
     },

@@ -5,6 +5,13 @@ User = function(name) {
   _name = name || "John Doe";
 
   var instance = {
+    get name() {
+      return _name;
+    },
+    set name(str) {
+      _name = str;
+      this.emit("did updated", "name", _name);
+    },
     say: function(str) {
       if (str.charAt(0) === "/") {
         this.emit("exec", str.substring(1));
@@ -26,18 +33,6 @@ User = function(name) {
       return this;
     },
   };
-
-  Object.defineProperty(
-    instance,
-    "name",
-    {
-      get: function() { return _name },
-      set: function(str) {
-        _name = str;
-        this.emit("did updated", "name", _name);
-      }
-    }
-  );
 
   instance.__proto__ = Object.create(EventEmitter.prototype);
 

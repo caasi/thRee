@@ -12,4 +12,4 @@ Depends on
 ToDo
 ----
 
-*   Implementing a game.
+*   a game

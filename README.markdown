@@ -12,4 +12,4 @@ Depends on
 ToDo
 ----
 
-*   a game
+*   a better way to add a game

@@ -130,14 +130,8 @@ game.roll = function(user) {
 
 /* the strategies */
 for (key in strategies) {
-  s = strategies[key];
-
-  for (moreKey in game) {
-    if (game.hasOwnProperty(moreKey)) {
-      (function(moreKey) {
-        s[moreKey] = game[moreKey];
-      }(moreKey));
-    }
+  if (strategies.hasOwnProperty(key)) {
+    strategies[key] = Object.create(game);
   }
 }
 

@@ -1,134 +1,193 @@
 var thRee   = require("./three");
 
-/* simple game */
+/* the game */
 var games = {};
+var simple, key, s, moreKey;
 
-var simple = function(user, opponentName) {
-  var game = games[user.name];
-  var opponent;
+var ask, wait, roll;
+var strategies = {
+  ask: {},
+  wait: {},
+  roll: {}
+};
 
-  if (game) {
-    thRee.self.whisper(user, "You are already in a game.");
-    return;
-  }
-  
-  opponent = thRee.userForName(opponentName);
+var game = function(user, opponentName) {
+  var opponent = thRee.userForName(opponentName);
+  var players;
 
   if (!opponent) {
-    thRee.self.whisper(user, "Can find your opponent.");
+    thRee.self.whisper(user, "Opponent not found.");
     return;
-  }
+  };
+  
+  players = {};
 
-  if (opponent === user) {
-    thRee.self.whisper(user, "It's weird to play with yourself.");
-    return;
-  }
-
-  games[user.name] = games[opponent.name] = {
-    ready: false,
-    current: 0,
-    players: [user, opponent],
-    points: [0, 0]
+  players[user.name] = {
+    user: user,
+    opponent: undefined,
+    score: 0,
+    strategy: strategies.wait
   };
 
-  thRee.self.whisper(opponent, user.name + " want to play a game, type /simple.accept to play.");
-  thRee.self.whisper(user, "Waiting for another player....");
+  players[opponent.name] = {
+    user: opponent,
+    opponent: undefined,
+    score: 0,
+    strategy: strategies.ask
+  };
+
+  players[user.name].opponent = players[opponent.name];
+  players[opponent.name].opponent = players[user.name];
+
+  games[user.name] = games[opponent.name] = {
+    players: players,
+  };
+
+  thRee.self.
+    whisper(user, "Wait for " + opponent.name + ".").
+    whisper(opponent, user.name + " wants to play a game, you can accept it by typing \"/simple.accept\".");
 };
 
-simple.help = function(user) {
-  thRee.self.whisper(user, "Play a small game with another user by typing \"/simple <opponent>\". You can abort the game by typing \"/simple.abort\".");
-};
-
-simple.accept = function(user) {
+game.accept = function(user) {
   var game = games[user.name];
+  var userPlayer = game.players[user.name];
+  var opponentPlayer = userPlayer.opponent;
 
-  if (!game) {
-    thRee.self.whisper(user, "You are not in a game.");
-    return;
-  }
+  userPlayer.strategy = strategies.wait;
+  opponentPlayer.strategy = strategies.roll;
 
-  if (game.ready) {
-    thRee.self.whisper(user, "You are already playing.");
-    return;
-  }
-
-  if (game.players[0] === user) {
-    thRee.self.whisper(user, "Please wait for your opponent.");
-    return;
-  }
-
-  game.ready = true;
-  thRee.self.whisper(game.players[0], "Game is ready, please roll a die by typing \"/simple.roll\".");
-  thRee.self.whisper(game.players[1], "Thank you, and have a nice fight.");
+  thRee.self.
+    whisper(user, "Thanks, time for " + opponentPlayer.user.name + " to roll.").
+    whisper(opponentPlayer.user, user.name + " is ready.").
+    whisper(opponentPlayer.user, "please roll by \"/simple.roll\".");
 };
 
-simple.abort = function(user) {
-  var game = games[user.name];
-  var user0, user1;
+game.abort = function(user) {
+  var players = games[user.name].players;
+  var opponentPlayer = players[user.name].opponent;
+  var opponent = opponentPlayer.user;
+  var msg = user.name + " runs away, game abort.";
 
-  if (!game) {
-    thRee.self.whisper(user, "You are not in a game.");
-    return;
-  }
+  thRee.self.whisper(user, msg);
+  thRee.self.whisper(opponent, msg);
 
-  user0 = game.players[0];
-  user1 = game.players[1];
+  delete opponentPlayer.opponent;
+  delete players[user.name].opponent;
+  delete games[user.name];
 
-  thRee.self.whisper(user0, user.name + " just give up.");
-  thRee.self.whisper(user1, user.name + " just give up.");
-
-  delete games[user0.name];
-  delete games[user1.name];
-
-  games[user0.name] = undefined;
-  games[user1.name] = undefined;
+  games[user.name] = undefined;
+  games[opponent.name] = undefined;
 };
 
-simple.roll = function(user) {
-  var game = games[user.name];
-  var opponent;
-  var point;
+game.roll = function(user) {
+  var players = games[user.name].players;
+  var userPlayer = players[user.name];
+  var opponentPlayer = userPlayer.opponent;
+  var opponent = opponentPlayer.user;
+  var score = Math.ceil(Math.random() * 100);
+  var winner, loser;
 
-  if (!game) {
-    thRee.self.whisper(user, "You are not in a game.");
-    return;
-  }
+  userPlayer.score = score;
 
-  if (game.players[game.current] !== user) {
-    thRee.self.whisper(user, "It's not your turn.");
-    return;
-  }
+  thRee.self.
+    whisper(user, "You rolled a " + score + ".").
+    whisper(opponent, user.name + " rolled a " + score + ".");
 
-  opponent = game.players[(game.current + 1) % 2];
+  if (!opponentPlayer.score) {
+    userPlayer.strategy = strategies.wait;
+    opponentPlayer.strategy = strategies.roll;
 
-  point = Math.ceil(Math.random() * 100);
-  game.points[game.current] = point;
-
-  thRee.self.whisper(user, "You rolled a " + point);
-  thRee.self.whisper(opponent, user.name + " rolled a " + point);
-
-  game.current += 1;
-
-  if (game.current !== 2) {
-    thRee.self.whisper(opponent, "Please roll a die by typing \"/simple.roll\".");
+    thRee.self.
+      whisper(user, "Time for " + opponent.name + " to roll.").
+      whisper(opponent, "Please roll by \"/simple.roll\".");
   } else {
-    if (game.points[0] > game.points[1]) {
-      thRee.self.whisper(game.players[0], "You win.");
-      thRee.self.whisper(game.players[1], "You lose.");
-    } else if (game.points[0] < game.points[1]) {
-      thRee.self.whisper(game.players[0], "You lose.");
-      thRee.self.whisper(game.players[1], "You win.");
+    if (userPlayer.score !== opponentPlayer.score) {
+      if (userPlayer.score > opponentPlayer.score) {
+        winner = user;
+        loser = opponent;
+      } else {
+        winner = opponent;
+        loser = user;
+      }
+
+      thRee.self.
+        whisper(winner, "You win.").
+        whisper(loser, "You lose.");
     } else {
-      thRee.self.whisper(game.players[0], "Draw.");
-      thRee.self.whisper(game.players[1], "Draw.");
+      thRee.self.
+        whisper(user, "Draw.").
+        whisper(opponent, "Draw.");
     }
 
+    delete opponentPlayer.opponent;
+    delete players[user.name].opponent;
     delete games[user.name];
-    delete games[opponent.name];
 
     games[user.name] = undefined;
     games[opponent.name] = undefined;
   }
+};
+
+/* the strategies */
+for (key in strategies) {
+  s = strategies[key];
+
+  for (moreKey in game) {
+    if (game.hasOwnProperty(moreKey)) {
+      (function(moreKey) {
+        s[moreKey] = game[moreKey];
+      }(moreKey));
+    }
+  }
+}
+
+strategies.ask.roll = function(user) {
+  thRee.self.whisper(user, "You haven't answer yet.");
+};
+
+strategies.wait.accept =
+strategies.wait.roll = function(user) {
+  thRee.self.whisper(user, "Please wait for your opponent.");
+};
+
+strategies.roll.accept = function(user) {
+  thRee.self.whisper(user, "Type \"/simple.roll\" please.");
+};
+
+/* the wrap */
+simple = function(user, opponentName) {
+  var currentGame = games[user.name];
+
+  if (!currentGame) {
+    game(user, opponentName);
+  } else {
+    thRee.self.whisper(user, "You are already in a game.");
+  }
+};
+
+for (key in game) {
+  if (game.hasOwnProperty(key)) {
+    (function(key) {
+      simple[key] = function(user) {
+        var currentGame = games[user.name];
+        var strategy;
+
+        if (!currentGame) {
+          thRee.self.whisper(user, "You are not in a game.");
+          return;
+        }
+
+        strategy = currentGame.players[user.name].strategy;
+        strategy[key].apply(strategy, arguments);
+      }
+    }(key));
+  }
+}
+
+simple.help = function(user) {
+  thRee.self.
+    whisper(user, "Play a small game with another user by typing \"/simple <opponent>\".").
+    whisper(user, "You can abort the game by typing \"/simple.abort\".");
 };
 
 thRee.exts.simple = simple;

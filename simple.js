@@ -128,6 +128,14 @@ game.roll = function(user) {
   }
 };
 
+thRee.on("leave", function(user) {
+  var currentGame = games[user.name];
+
+  if (currentGame) {
+    game.abort(user);
+  }
+});
+
 /* the strategies */
 for (key in strategies) {
   if (strategies.hasOwnProperty(key)) {

@@ -1,5 +1,6 @@
-var utils = require("./utils");
-var User  = require("./user");
+var EventEmitter = require("events").EventEmitter;
+var utils =        require("./utils");
+var User  =        require("./user");
 
 var users = {};
 var logs = [];
@@ -23,9 +24,15 @@ var thRee = {
     user.on("say", function(str, unixtime) {
       logs.push({ name: user.name, text: str, type: "history", time: unixtime });
     });
+
+    this.emit("join", user);
   },
   leave: function(id) {
+    var user = users[id];
+
     delete users[id];
+
+    this.emit("leave", user);
   },
   logs: function(num) {
     var i, start;
@@ -70,6 +77,8 @@ var thRee = {
     }
   }
 };
+
+thRee.__proto__ = Object.create(EventEmitter.prototype);
 
 thRee.self = User("thRee");
 thRee.join(0, thRee.self);

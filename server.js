@@ -3,6 +3,7 @@ var utils   = require("./utils");
 var logger  = require("./logger");
 var User    = require("./user");
 var thRee   = require("./three");
+              require("./simple");
 
 var SocketUser = function(user, socket) {
   user.on("say", function(str, unixtime) {

@@ -2,7 +2,7 @@ var thRee   = require("./three");
 
 /* the game */
 var games = {};
-var simple, key, s, moreKey;
+var simple, key;
 
 var ask, wait, roll;
 var strategies = {

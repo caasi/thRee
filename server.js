@@ -38,6 +38,21 @@ var CommanderUser = function(user, executer) {
 
 SocketUser(CommanderUser(thRee.self, thRee), { emit: utils.type.nullFunction, broadcast: io.sockets });
 
+io.set("authorization", function (handshakeData, callback) {
+  var cookies = {};
+
+  /* parse cookies */
+  handshakeData.headers.cookie.split(";").forEach(function (cookie) {
+    var parts = cookie.split("=");
+    cookies[parts[0].trim()] = (parts[1] || "").trim();
+  });
+
+  /* client will remember username and send it by cookie */
+  handshakeData.name = cookies.name;
+
+  callback(null, true);
+});
+
 io.sockets.on("connection", function(socket) {
   var user, name;
 
@@ -51,7 +66,7 @@ io.sockets.on("connection", function(socket) {
   });
   
   user = new User();
-  name = new Buffer(socket.id).toString("base64").substring(0, 8);
+  name = socket.handshake.name || new Buffer(socket.id).toString("base64").substring(0, 8);
   SocketUser(CommanderUser(user, thRee), socket);
   user.name = name;
 

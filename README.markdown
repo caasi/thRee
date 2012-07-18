@@ -6,10 +6,12 @@ thRee is a simple node.js chatroom which can be extended easily.
 Depends on
 ----------
 
-*   winston
-*   socket.io
+*   [winston](https://github.com/flatiron/winston/)
+*   [socket.io](https://github.com/LearnBoost/socket.io)
 
 ToDo
 ----
 
-*   a better way to add a game
+*   ES5
+*   user list
+*   send markdown to a client

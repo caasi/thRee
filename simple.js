@@ -46,6 +46,11 @@ var game = function(user, opponentName) {
   thRee.self.
     whisper(user, "Wait for " + opponent.name + ".").
     whisper(opponent, user.name + " wants to play a game, you can accept it by typing \"/simple.accept\".");
+
+  if (opponent === thRee.self) {
+    /* thRee always give up */
+    game.abort(thRee.self);
+  }
 };
 
 game.accept = function(user) {

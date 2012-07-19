@@ -1,9 +1,12 @@
+var assert  = require("assert");
+var fs      = require("fs");
 var io      = require("socket.io").listen(8081, { "log level": 0 });
 var utils   = require("./utils");
 var logger  = require("./logger");
 var User    = require("./user");
 var thRee   = require("./three");
               require("./simple");
+var welcome;
 
 var SocketUser = function(user, socket) {
   user.on("say", function(str, unixtime) {
@@ -75,12 +78,17 @@ io.sockets.on("connection", function(socket) {
   });
   
   thRee.join(socket.id, user);
+
+  if (!welcome) {
+    fs.readFile("./msg/welcome.markdown", "utf-8", function(err, data) {
+      welcome = data;
+      thRee.self.whisper(user, welcome);
+    });
+  } else {
+    thRee.self.whisper(user, welcome);
+  }
+
   thRee.self.
-    whisper(user, "Welcome.").
-    whisper(user, "I will call you \"" + user.name + "\" for now,").
-    whisper(user, "but you can change it at will.").
-    whisper(user, "Try /help and /help.help yourself,").
-    whisper(user, "and have a nice day.").
     say(user.name + " has logged in.");
 });
 

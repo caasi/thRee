@@ -14,4 +14,4 @@ ToDo
 
 *   ES5
 *   user list
-*   chached msg system
+*   filte html tags inside /say and /msg

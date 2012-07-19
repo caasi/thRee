@@ -1,4 +1,5 @@
 var thRee   = require("./three");
+              require("./communication");
 
 /* the game */
 var games = {};
@@ -16,7 +17,12 @@ var game = function(user, opponentName) {
   var players;
 
   if (!opponent) {
-    thRee.self.whisper(user, "Opponent not found.");
+    thRee.self.msg(user, "Opponent not found.");
+    return;
+  };
+
+  if (opponent === user) {
+    thRee.self.msg(user, "Why do you want to play with yourself?");
     return;
   };
   
@@ -44,8 +50,8 @@ var game = function(user, opponentName) {
   };
 
   thRee.self.
-    whisper(user, "Wait for " + opponent.name + ".").
-    whisper(opponent, user.name + " wants to play a game, you can accept it by typing \"/simple.accept\".");
+    msg(user, "Wait for " + opponent.name + ".").
+    msg(opponent, user.name + " wants to play a game, you can accept it by typing \"/simple.accept\".");
 
   if (opponent === thRee.self) {
     /* thRee always give up */
@@ -62,9 +68,9 @@ game.accept = function(user) {
   opponentPlayer.strategy = strategies.roll;
 
   thRee.self.
-    whisper(user, "Thanks, time for " + opponentPlayer.user.name + " to roll.").
-    whisper(opponentPlayer.user, user.name + " is ready.").
-    whisper(opponentPlayer.user, "please roll by \"/simple.roll\".");
+    msg(user, "Thanks, time for " + opponentPlayer.user.name + " to roll.").
+    msg(opponentPlayer.user, user.name + " is ready.").
+    msg(opponentPlayer.user, "please roll by \"/simple.roll\".");
 };
 
 game.abort = function(user) {
@@ -73,8 +79,9 @@ game.abort = function(user) {
   var opponent = opponentPlayer.user;
   var msg = user.name + " runs away, game abort.";
 
-  thRee.self.whisper(user, msg);
-  thRee.self.whisper(opponent, msg);
+  thRee.self.
+    msg(user, msg).
+    msg(opponent, msg);
 
   delete opponentPlayer.opponent;
   delete players[user.name].opponent;
@@ -95,16 +102,16 @@ game.roll = function(user) {
   userPlayer.score = score;
 
   thRee.self.
-    whisper(user, "You rolled a " + score + ".").
-    whisper(opponent, user.name + " rolled a " + score + ".");
+    msg(user, "You rolled a " + score + ".").
+    msg(opponent, user.name + " rolled a " + score + ".");
 
   if (!opponentPlayer.score) {
     userPlayer.strategy = strategies.wait;
     opponentPlayer.strategy = strategies.roll;
 
     thRee.self.
-      whisper(user, "Time for " + opponent.name + " to roll.").
-      whisper(opponent, "Please roll by \"/simple.roll\".");
+      msg(user, "Time for " + opponent.name + " to roll.").
+      msg(opponent, "Please roll by \"/simple.roll\".");
   } else {
     if (userPlayer.score !== opponentPlayer.score) {
       if (userPlayer.score > opponentPlayer.score) {
@@ -116,12 +123,12 @@ game.roll = function(user) {
       }
 
       thRee.self.
-        whisper(winner, "You win.").
-        whisper(loser, "You lose.");
+        msg(winner, "You win.").
+        msg(loser, "You lose.");
     } else {
       thRee.self.
-        whisper(user, "Draw.").
-        whisper(opponent, "Draw.");
+        msg(user, "Draw.").
+        msg(opponent, "Draw.");
     }
 
     delete opponentPlayer.opponent;
@@ -149,16 +156,16 @@ for (key in strategies) {
 }
 
 strategies.ask.roll = function(user) {
-  thRee.self.whisper(user, "You haven't answer yet.");
+  thRee.self.msg(user, "You haven't answer yet.");
 };
 
 strategies.wait.accept =
 strategies.wait.roll = function(user) {
-  thRee.self.whisper(user, "Please wait for your opponent.");
+  thRee.self.msg(user, "Please wait for your opponent.");
 };
 
 strategies.roll.accept = function(user) {
-  thRee.self.whisper(user, "Type \"/simple.roll\" please.");
+  thRee.self.msg(user, "Type \"/simple.roll\" please.");
 };
 
 /* the wrap */
@@ -168,7 +175,7 @@ simple = function(user, opponentName) {
   if (!currentGame) {
     game(user, opponentName);
   } else {
-    thRee.self.whisper(user, "You are already in a game.");
+    thRee.self.msg(user, "You are already in a game.");
   }
 };
 
@@ -180,7 +187,7 @@ for (key in game) {
         var strategy;
 
         if (!currentGame) {
-          thRee.self.whisper(user, "You are not in a game.");
+          thRee.self.msg(user, "You are not in a game.");
           return;
         }
 
@@ -193,8 +200,8 @@ for (key in game) {
 
 simple.help = function(user) {
   thRee.self.
-    whisper(user, "Play a small game with another user by typing \"/simple <opponent>\".").
-    whisper(user, "You can abort the game by typing \"/simple.abort\".");
+    msg(user, "Play a small game with another user by typing \"/simple <opponent>\".").
+    msg(user, "You can abort the game by typing \"/simple.abort\".");
 };
 
 thRee.exts.simple = simple;

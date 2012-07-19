@@ -12,26 +12,14 @@ User = function(name) {
       _name = str;
       this.emit("did updated", "name", _name);
     },
-    say: function(str) {
-      if (str.charAt(0) === "/") {
-        this.emit("exec", str.substring(1), new Date().getTime());
-      } else {
-        this.emit("say", str, new Date().getTime());
-      }
-
+    in: function(str) {
+      this.emit("in", str);
       return this;
     },
-    hear: function(talker, str) {
-      this.emit("hear", talker, str, new Date().getTime());
-
+    out: function(str) {
+      this.emit("out", str);
       return this;
-    },
-    whisper: function(user, str) {
-      this.hear(this, str);
-      user.hear(this, str);
-
-      return this;
-    },
+    }
   };
 
   instance.__proto__ = Object.create(EventEmitter.prototype);

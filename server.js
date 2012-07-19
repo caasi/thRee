@@ -5,20 +5,14 @@ var utils   = require("./utils");
 var logger  = require("./logger");
 var User    = require("./user");
 var thRee   = require("./three");
+var com     = require("./communication");
+              require("./basic");
               require("./simple");
 var welcome;
 
 var SocketUser = function(user, socket) {
-  user.on("say", function(str, unixtime) {
-    logger.chat(user.name.yellow + ": ".magenta + str);
-    socket.broadcast.emit("log", { name: user.name, text: str, type: "say", time: unixtime });
-  });
-
-  user.on("hear", function(talker, str, unixtime) {
-    if (talker !== user) {
-      logger.chat(talker.name.yellow + "->".magenta + user.name.yellow + ": ".magenta + str);
-    }
-    socket.emit("log", { name: talker.name, text: str, type: "whisper", time: unixtime });
+  user.on("out", function(log) {
+    socket.emit("log", log);
   });
 
   user.on("did updated", function(key, value) {
@@ -30,16 +24,7 @@ var SocketUser = function(user, socket) {
   return user;
 };
 
-var CommanderUser = function(user, executer) {
-  user.on("exec", function(command) {
-    logger.chat(user.name.yellow + "$ ".green + command);
-    executer.exec(user, command);
-  });
-
-  return user;
-};
-
-SocketUser(CommanderUser(thRee.self, thRee), { emit: utils.type.nullFunction, broadcast: io.sockets });
+SocketUser(thRee.self, { emit: utils.type.nullFunction });
 
 io.set("authorization", function (handshakeData, callback) {
   var cookies = {};
@@ -64,16 +49,21 @@ io.sockets.on("connection", function(socket) {
     thRee.leave(socket.id);
   });
 
-  socket.on("msg", function(msg) {
-    user.say(msg);
+  socket.on("command", function(command) {
+    if (command.charAt(0) !== "/") {
+      command = "say " + command;
+    } else {
+      command = command.substring(1);
+    }
+    
+    user.in(command);
   });
   
-  user = new User();
   name = socket.handshake.name || new Buffer(socket.id).toString("base64").substring(0, 8);
-  SocketUser(CommanderUser(user, thRee), socket);
-  user.name = name;
+  user = User(name);
+  SocketUser(user, socket);
 
-  thRee.logs(15).forEach(function(log) {
+  com.logs(15).forEach(function(log) {
     socket.emit("log", log);
   });
   
@@ -82,14 +72,13 @@ io.sockets.on("connection", function(socket) {
   if (!welcome) {
     fs.readFile("./msg/welcome.markdown", "utf-8", function(err, data) {
       welcome = data;
-      thRee.self.whisper(user, welcome);
+      thRee.self.msg(user, welcome);
     });
   } else {
-    thRee.self.whisper(user, welcome);
+    thRee.self.msg(user, welcome);
   }
 
-  thRee.self.
-    say(user.name + " has logged in.");
+  thRee.self.say(user.name + " has logged in.");
 });
 
 logger.chat("ready");

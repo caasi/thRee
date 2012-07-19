@@ -57,7 +57,7 @@ thRee.exts.say = function(user) {
 };
 
 thRee.exts.say.help = function(user) {
-  thRee.self.msg(user, "You can talk by typing \"/say <message>\".");
+  thRee.self.msg(user, "You can talk by typing \"/say &lt;message&gt;\".");
 };
 
 thRee.exts.msg = function(user, name) {
@@ -82,7 +82,7 @@ thRee.exts.msg = function(user, name) {
 };
 
 thRee.exts.msg.help = function(user) {
-  thRee.self.msg(user, "You can talk to someone by typing \"/msg <name> <message>\".");
+  thRee.self.msg(user, "You can talk to someone by typing \"/msg &lt;name&gt; &lt;message&gt;\".");
 };
 
 com.logs = function(num) {

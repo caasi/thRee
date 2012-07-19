@@ -200,7 +200,7 @@ for (key in game) {
 
 simple.help = function(user) {
   thRee.self.
-    msg(user, "Play a small game with another user by typing \"/simple <opponent>\".").
+    msg(user, "Play a small game with another user by typing \"/simple &lt;opponent&gt;\".").
     msg(user, "You can abort the game by typing \"/simple.abort\".");
 };
 

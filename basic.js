@@ -21,7 +21,7 @@ thRee.exts.nick = function(user, name) {
 
   if (name && name !== "") {
     if (name === user.name) {
-      thRee.self.msg(user, "It's your own name.");
+      thRee.self.msg(user, "You have took that name.");
       return;
     }
 
@@ -40,5 +40,5 @@ thRee.exts.nick = function(user, name) {
 };
 
 thRee.exts.nick.help = function(user) {
-  thRee.self.msg(user, "You can change your name by typing \"/nick <new name>\".");
+  thRee.self.msg(user, "You can change your name by typing \"/nick &lt;new name&gt;\".");
 };

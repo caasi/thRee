@@ -30,10 +30,12 @@ io.set("authorization", function (handshakeData, callback) {
   var cookies = {};
 
   /* parse cookies */
-  handshakeData.headers.cookie.split(";").forEach(function (cookie) {
-    var parts = cookie.split("=");
-    cookies[parts[0].trim()] = (parts[1] || "").trim();
-  });
+  if (handshakeData.headers.cookie) {
+    handshakeData.headers.cookie.split(";").forEach(function (cookie) {
+      var parts = cookie.split("=");
+      cookies[parts[0].trim()] = (parts[1] || "").trim();
+    });
+  }
 
   /* client will remember username and send it by cookie */
   handshakeData.name = cookies.name;
@@ -59,9 +61,10 @@ io.sockets.on("connection", function(socket) {
     user.in(command);
   });
   
-  name = socket.handshake.name || new Buffer(socket.id).toString("base64").substring(0, 8);
-  user = User(name);
+  user = User();
   SocketUser(user, socket);
+  /* set name and send it to the client */
+  user.name = socket.handshake.name || new Buffer(socket.id).toString("base64").substring(0, 8);
 
   com.logs(15).forEach(function(log) {
     socket.emit("log", log);

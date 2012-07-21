@@ -30,7 +30,7 @@ io.set("authorization", function (handshakeData, callback) {
 
 io.sockets.on("connection", function(socket) {
   /* ask client for rpcs with namespace */
-  socket.on("object", function(o) {
+  socket.on("expose", function(o) {
     var client = Actor(o);
     var user = User();
 
@@ -80,8 +80,6 @@ io.sockets.on("connection", function(socket) {
         say(user.name + " has logged in.");
     }
   });
-
-  socket.emit("object");
 });
 
 logger.chat("ready");

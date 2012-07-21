@@ -12,6 +12,6 @@ Depends on
 ToDo
 ----
 
+*   actor.js should be agent.js
 *   ES5
 *   user list
-*   filte html tags inside /say and /msg

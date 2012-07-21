@@ -24,8 +24,8 @@ var thRee = {
 
     this.users[id] = user;
     /* short cuts */
-    user.on("in", function(str) {
-      self.exec(user, str);
+    user.on("in", function(cmd) {
+      self.exec(user, cmd);
     });
 
     this.emit("join", user);
@@ -37,30 +37,27 @@ var thRee = {
 
     this.emit("leave", user);
   },
-  exec: function(user, str) {
-    var path;
-    var args;
+  exec: function(user, cmd) {
     var prev;
-    var func;
+    var current;
     var i;
 
-    logger.chat(user.name.yellow + "$ ".magenta + str);
+    logger.chat(user.name.yellow + "$ ".magenta + cmd.keypath.join(".") + " " + cmd.args.join(", "));
 
-    args = str.split(" ");
-    path = args.splice(0, 1)[0];
-    path = path.split(".");
+    current = this.exts;
 
-    func = this.exts;
+    for (i = 0; i < cmd.keypath.length; i += 1) {
+      prev = current;
+      current = current[cmd.keypath[i]];
 
-    for (i = 0; i < path.length; i = i + 1) {
-      prev = func;
-      func = func[path[i]];
-
-      if (!func) return;
+      if (!current) {
+        logger.chat("command not found");
+        return;
+      }
     }
 
-    if (utils.type.isFunction(func)) {
-      func.apply(prev, [user].concat(args));
+    if (utils.type.isFunction(current)) {
+      current.apply(prev, [user].concat(cmd.args));
     }
   }
 };

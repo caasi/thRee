@@ -12,8 +12,8 @@ User = function(name) {
       _name = str;
       this.emit("did updated", "name", _name);
     },
-    in: function(str) {
-      this.emit("in", str);
+    in: function(cmd) {
+      this.emit("in", cmd);
       return this;
     },
     out: function(str) {

@@ -55,14 +55,8 @@ io.sockets.on("connection", function(socket) {
     thRee.leave(socket.id);
   });
 
-  socket.on("command", function(command) {
-    if (command.charAt(0) !== "/") {
-      command = "say " + command;
-    } else {
-      command = command.substring(1);
-    }
-    
-    user.in(command);
+  socket.on("cmd", function(cmd) {
+    user.in(cmd);
   });
   
   user = User();

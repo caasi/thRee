@@ -12,13 +12,17 @@ var welcome;
 
 var SocketUser = function(user, socket) {
   user.on("out", function(log) {
-    socket.emit("log", log);
+    socket.emit("cmd", {
+      keypath: ["chat", "log"],
+      args: [log]
+    });
   });
 
   user.on("did updated", function(key, value) {
-    if (key === "name") {
-      socket.emit("user", { name: value });
-    }
+    socket.emit("cmd", {
+      keypath: ["user", "name"],
+      args: [value]
+    });
   });
 
   return user;

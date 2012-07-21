@@ -80,6 +80,8 @@ io.sockets.on("connection", function(socket) {
         say(user.name + " has logged in.");
     }
   });
+
+  socket.emit("expose", thRee.struct(thRee.exts));
 });
 
 logger.chat("ready");

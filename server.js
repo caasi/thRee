@@ -4,31 +4,12 @@ var io      = require("socket.io").listen(8081, { "log level": 0 });
 var utils   = require("./utils");
 var logger  = require("./logger");
 var User    = require("./user");
+var Actor   = require("./actor");
 var thRee   = require("./three");
 var com     = require("./communication");
               require("./basic");
               require("./simple");
 var welcome;
-
-var SocketUser = function(user, socket) {
-  user.on("out", function(log) {
-    socket.emit("cmd", {
-      keypath: ["chat", "log"],
-      args: [log]
-    });
-  });
-
-  user.on("did updated", function(key, value) {
-    socket.emit("cmd", {
-      keypath: ["user", "name"],
-      args: [value]
-    });
-  });
-
-  return user;
-};
-
-SocketUser(thRee.self, { emit: utils.type.nullFunction });
 
 io.set("authorization", function (handshakeData, callback) {
   var cookies = {};
@@ -48,38 +29,59 @@ io.set("authorization", function (handshakeData, callback) {
 });
 
 io.sockets.on("connection", function(socket) {
-  var user, name;
+  /* ask client for rpcs with namespace */
+  socket.on("object", function(o) {
+    var client = Actor(o);
+    var user = User();
 
-  socket.on("disconnect", function() {
-    thRee.self.say(user.name + " has logged out.");
-    thRee.leave(socket.id);
-  });
-
-  socket.on("cmd", function(cmd) {
-    user.in(cmd);
-  });
-  
-  user = User();
-  SocketUser(user, socket);
-  /* set name and send it to the client */
-  user.name = socket.handshake.name || new Buffer(socket.id).toString("base64").substring(0, 8);
-
-  com.logs(15).forEach(function(log) {
-    socket.emit("log", log);
-  });
-  
-  thRee.join(socket.id, user);
-
-  if (!welcome) {
-    fs.readFile("./msg/welcome.markdown", "utf-8", function(err, data) {
-      welcome = data;
-      thRee.self.msg(user, welcome);
+    client.on("bubble", function(keypath, args) {
+      socket.emit("cmd", {
+        keypath: keypath,
+        args: args
+      });
     });
-  } else {
-    thRee.self.msg(user, welcome);
-  }
 
-  thRee.self.say(user.name + " has logged in.");
+    user.on("out", function(log) {
+      client.chat.log(log);
+    });
+
+    user.on("did updated", function(key, value) {
+      client.username(value);
+    });
+
+    socket.on("disconnect", function() {
+      thRee.self.say(user.name + " has logged out.");
+      thRee.leave(socket.id);
+    });
+
+    socket.on("cmd", function(cmd) {
+      user.in(cmd);
+    });
+
+    /* set name and send it to the client */
+    user.name = socket.handshake.name || new Buffer(socket.id).toString("base64").substring(0, 8);
+
+    com.logs(15).forEach(function(log) {
+      client.chat.log(log);
+    });
+  
+    thRee.join(socket.id, user);
+
+    if (!welcome) {
+      fs.readFile("./msg/welcome.markdown", "utf-8", function(err, data) {
+        welcome = data;
+        thRee.self.
+          msg(user, welcome).
+          say(user.name + " has logged in.");
+      });
+    } else {
+      thRee.self.
+        msg(user, welcome).
+        say(user.name + " has logged in.");
+    }
+  });
+
+  socket.emit("object");
 });
 
 logger.chat("ready");

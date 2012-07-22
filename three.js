@@ -6,15 +6,6 @@ var User         = require("./user");
 var thRee = {
   users: {},
   exts: {},
-  struct: function(o) {
-    var ret = {};
-
-    Object.keys(o).forEach(function(key) {
-      ret[key] = thRee.struct(o[key]);
-    });
-
-    return ret;
-  },
   userForName: function(name) {
     var self = this;
     var user;

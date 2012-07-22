@@ -1,15 +1,31 @@
-var assert  = require("assert");
-var fs      = require("fs");
-var io      = require("socket.io").listen(8081, { "log level": 0 });
-var utils   = require("./utils");
-var logger  = require("./logger");
-var User    = require("./user");
-var Actor   = require("./actor");
-var thRee   = require("./three");
-var com     = require("./communication");
-              require("./basic");
-              require("./simple");
+var assert    = require("assert");
+var fs        = require("fs");
+var io        = require("socket.io").listen(8081, { "log level": 0 });
+var utils     = require("./utils");
+var logger    = require("./logger");
+var User      = require("./user");
+var Agent     = require("./agent");
+var DObject   = require("./dobject");
+var thRee     = require("./three");
+var com       = require("./communication");
+                require("./basic");
+                require("./simple");
 var welcome;
+
+var foo = {
+  bar: function(str) {
+    console.log("foobar: " + str);
+  },
+  deeper: {
+    count: function() {
+      console.log("no primitives");
+    }
+  }
+};
+
+var dfoo = DObject(foo);
+dfoo.bar();
+dfoo.deeper.count();
 
 io.set("authorization", function (handshakeData, callback) {
   var cookies = {};
@@ -31,14 +47,11 @@ io.set("authorization", function (handshakeData, callback) {
 io.sockets.on("connection", function(socket) {
   /* ask client for rpcs with namespace */
   socket.on("expose", function(o) {
-    var client = Actor(o);
+    var client = Agent(DObject.validate(o));
     var user = User();
 
-    client.on("bubble", function(keypath, args) {
-      socket.emit("cmd", {
-        keypath: keypath,
-        args: args
-      });
+    client.on("bubble", function(cmd) {
+      socket.emit("cmd", cmd);
     });
 
     user.on("out", function(log) {
@@ -81,7 +94,7 @@ io.sockets.on("connection", function(socket) {
     }
   });
 
-  socket.emit("expose", thRee.struct(thRee.exts));
+  socket.emit("expose", DObject.expose(thRee.exts));
 });
 
 logger.chat("ready");

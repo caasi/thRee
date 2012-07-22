@@ -1,6 +1,6 @@
 var EventEmitter = require("events").EventEmitter;
 
-var Agent = function(target) {
+var Agent = function(target, thisArg) {
   var type = typeof target;
   var ret;
 
@@ -8,6 +8,7 @@ var Agent = function(target) {
     ret = null;
   } else if (type === "function") {
     ret = function() {
+      target.apply(thisArg, arguments);
       ret.emit("bubble", { type: "msg", keypath: [], args: Array.prototype.slice.call(arguments) });
     };
   } else if (type === "object") {
@@ -20,7 +21,7 @@ var Agent = function(target) {
     ret.__proto__ = Object.create(EventEmitter.prototype);
     
     Object.keys(target).forEach(function(key) {
-      var result = Agent(target[key]);
+      var result = Agent(target[key], target);
 
       if (result) {
         result.on("bubble", function(cmd) {

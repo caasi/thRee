@@ -90,7 +90,7 @@ io.sockets.on("connection", function(socket) {
   });
 
   socket.on("foobar.cmd", function(cmd) {
-    dfoo.exec(cmd);
+    Agent.exec(dfoo, cmd);
   });
 
   socket.emit("expose", DObject.expose(thRee.exts));

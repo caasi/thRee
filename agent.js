@@ -72,13 +72,11 @@ var Agent = function(target, thisArg) {
         );
       }
     });
-
-    ret.exec = function(cmd) {
-      exec(target, cmd);
-    };
   }
 
   return ret;
 };
+
+Agent.exec = exec;
 
 exports = module.exports = Agent;

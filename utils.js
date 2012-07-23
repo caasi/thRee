@@ -76,8 +76,20 @@ function skvmap(o, strategies) {
   );
 }
 
+function isObject(o) {
+  return o === Object(o);
+}
+
 function isFunction(o) {
   return typeof o === "function";
+}
+
+function isString(o) {
+  return Object.prototype.toString.call(o) === "[object String]";
+}
+
+function isNumber(o) {
+  return Object.prototype.toString.call(o) === "[object Number]";
 }
 
 function isObjectID(o) {
@@ -103,7 +115,10 @@ function isObservableValue(o) {
 utils.kvmap = kvmap;
 utils.skvmap = skvmap;
 utils.type.nullFunction = function() {};
+utils.type.isObject = isObject;
 utils.type.isFunction = isFunction;
+utils.type.isString = isString;
+utils.type.isNumber = isNumber;
 utils.type.isObjectID = isObjectID;
 utils.type.mayBeObjectID = mayBeObjectID;
 utils.type.isObservable = isObservable;

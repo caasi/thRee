@@ -1,95 +1,67 @@
-var Agent   = require("./agent");
+var utils = require("./utils");
+var Agent = require("./agent");
 
-var validate = function() {
-  var self = this;
-  var type = typeof this;
-
-  if (!Array.isArray(this) && (type === "function" || type === "object")) {
-    Object.keys(this).forEach(function(key) {
-      if (self[key].type && self[key].type === "function") {
-        self[key] = function () {};
-      }
-
-      validate.call(self[key]);
-    });
-  }
-
-  return this;
-};
-
-var expose = function() {
-  var self = this;
-  var type = typeof this;
+var validate = function(o) {
   var ret;
 
-  if (Array.isArray(this)) {
-    ret = this;
-  } else if (type === "function") {
-    ret = { type: type };
-  } else if (type === "object") {
-    ret = {};
+  if (Array.isArray(o)) {
+    ret = o;
+  } else if (utils.type.isFunction(o)) {
+    ret = o;
+  } else if (utils.type.isNumber(o) || utils.type.isString(o)) {
+    ret = o;
   } else {
-    ret = this;
+    if (o.type && o.type === "function") {
+      ret = function () {};
+    } else {
+      ret = o;
+    }
   }
 
-  if (ret !== this) {
-    Object.keys(this).forEach(function(key) {
-      ret[key] = expose.call(self[key]);
+  if (utils.type.isFunction(o) || utils.type.isObject(o)) {
+    Object.keys(o).forEach(function(key) {
+      if (key === "type") return;
+      ret[key] = validate(o[key]);
     });
   }
 
   return ret;
 };
 
-var exec = function(cmd) {
-  var prev;
-  var current;
+var expose = function(o) {
+  var ret;
 
-  current = this;
-
-  cmd.keypath.forEach(function(key) {
-    if (!current) return;
-
-    prev = current;
-    current = current[key];
-  });
-
-  if (cmd.type === "msg") {
-    current.apply(prev, cmd.args);
+  if (Array.isArray(o)) {
+    ret = o;
+  } else if (utils.type.isFunction(o)) {
+    ret = { type: "function" };
+  } else if (utils.type.isNumber(o) || utils.type.isString(o)) {
+    ret = o;
   } else {
-    if (cmd.type === "get") {
-      return prev[cmd.keypath[cmd.keypath.length - 1]];
-    }
-    if (cmd.type === "set") {
-      prev[cmd.keypath[cmd.keypath.length - 1]] = cmd.args[0];
-    }
+    ret = {};
   }
+
+  if (ret !== o) {
+    Object.keys(o).forEach(function(key) {
+      ret[key] = expose(o[key]);
+    });
+  }
+
+  return ret;
 };
+
 
 var DObject = function(o) {
   var agent = Agent(o);
 
   agent.expose = function() {
-    return expose.call(o);
-  };
-
-  agent.exec = function(cmd) {
-    return exec.call(o, cmd);
+    return expose(this);
   };
 
   return agent;
 };
 
-DObject.validate = function(o) {
-  return validate.call(o);
-};
-
-DObject.expose = function(o) {
-  return expose.call(o);
-};
-
-DObject.exec = function(o, cmd) {
-  return exec.call(o, cmd);
-};
+DObject.validate = validate;
+DObject.expose = expose;
 
 exports = module.exports = DObject;

@@ -13,19 +13,10 @@ var com       = require("./communication");
 var welcome;
 
 var foo = {
-  bar: function(str) {
-    console.log("foobar: " + str);
-  },
-  deeper: {
-    count: function() {
-      console.log("no primitives");
-    }
-  }
+  count: 0
 };
 
 var dfoo = DObject(foo);
-dfoo.bar();
-dfoo.deeper.count();
 
 io.set("authorization", function (handshakeData, callback) {
   var cookies = {};
@@ -94,7 +85,16 @@ io.sockets.on("connection", function(socket) {
     }
   });
 
+  dfoo.on("bubble", function(cmd) {
+    socket.emit("foobar.cmd", cmd);
+  });
+
+  socket.on("foobar.cmd", function(cmd) {
+    dfoo.exec(cmd);
+  });
+
   socket.emit("expose", DObject.expose(thRee.exts));
+  socket.emit("foobar", DObject.expose(foo));
 });
 
 logger.chat("ready");

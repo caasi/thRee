@@ -50,13 +50,26 @@ var expose = function(o) {
   return ret;
 };
 
-
 var DObject = function(o) {
   var agent = Agent(o);
 
-  agent.expose = function() {
-    return expose(this);
+  agent.exec = function(cmd) {
+    return Agent.exec(this, cmd);
   };
+
+  agent.expose = function() {
+    return expose(o);
+  };
+
+  return agent;
+};
+
+DObject.interface = function(o) {
+  var agent = Agent(o);
+
+  agent.exec = function(cmd) {
+    return Agent.exec(o, cmd);
+  }
 
   return agent;
 };

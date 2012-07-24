@@ -12,12 +12,6 @@ var com       = require("./communication");
                 require("./simple");
 var welcome;
 
-var foo = {
-  count: 0
-};
-
-var dfoo = DObject(foo);
-
 io.set("authorization", function (handshakeData, callback) {
   var cookies = {};
 
@@ -37,29 +31,29 @@ io.set("authorization", function (handshakeData, callback) {
 
 io.sockets.on("connection", function(socket) {
   /* ask client for rpcs with namespace */
-  socket.on("expose", function(o) {
-    var client = Agent(DObject.validate(o));
+  socket.on("thRee", function(o) {
+    var client = DObject.interface(DObject.validate(o));
     var user = User();
 
     client.on("bubble", function(cmd) {
-      socket.emit("cmd", cmd);
+      socket.emit("thRee.cmd", cmd);
+    });
+
+    socket.on("thRee.cmd", function(cmd) {
+      client.exec(cmd);
     });
 
     user.on("out", function(log) {
       client.chat.log(log);
     });
 
-    user.on("did updated", function(key, value) {
-      client.username(value);
+    socket.on("cmd", function(cmd) {
+      user.in(cmd);
     });
 
     socket.on("disconnect", function() {
       thRee.self.say(user.name + " has logged out.");
       thRee.leave(socket.id);
-    });
-
-    socket.on("cmd", function(cmd) {
-      user.in(cmd);
     });
 
     /* set name and send it to the client */
@@ -84,17 +78,6 @@ io.sockets.on("connection", function(socket) {
         say(user.name + " has logged in.");
     }
   });
-
-  dfoo.on("bubble", function(cmd) {
-    socket.emit("foobar.cmd", cmd);
-  });
-
-  socket.on("foobar.cmd", function(cmd) {
-    Agent.exec(dfoo, cmd);
-  });
-
-  socket.emit("expose", DObject.expose(thRee.exts));
-  socket.emit("foobar", DObject.expose(foo));
 });
 
 logger.chat("ready");

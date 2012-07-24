@@ -15,7 +15,7 @@ var exec = function(o, cmd) {
   });
 
   if (cmd.type === "msg") {
-    current.apply(prev, cmd.args);
+    return current.apply(prev, cmd.args);
   } else {
     if (cmd.type === "get") {
       return prev[cmd.keypath[cmd.keypath.length - 1]];

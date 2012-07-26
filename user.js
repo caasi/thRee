@@ -6,19 +6,12 @@ User = function(name) {
     in: function(cmd) {
       this.emit("in", cmd);
       return this;
+    },
+    out: function(str) {
+      this.emit("out", str);
+      return this;
     }
   };
-
-  Object.defineProperty(
-    instance,
-    "out",
-    {
-      value: function(str) {
-        this.emit("out", str);
-        return this;
-      }
-    }
-  );
 
   instance.__proto__ = Object.create(EventEmitter.prototype);
 

@@ -14,8 +14,10 @@ var exec = function(o, cmd) {
     current = current[key];
   });
 
+  if (!current) return;
+
   if (cmd.type === "msg") {
-    return current.apply(prev, cmd.args);
+    return Function.prototype.apply.call(current, prev, cmd.args);
   } else {
     if (cmd.type === "get") {
       return prev[cmd.keypath[cmd.keypath.length - 1]];
@@ -36,15 +38,15 @@ var Agent = function(target, thisArg) {
       target.apply(thisArg, arguments);
       ret.emit("bubble", { type: "msg", keypath: [], args: Array.prototype.slice.call(arguments) });
     };
+    ret.__proto__ = Object.create(EventEmitter.prototype);
   } else if (utils.type.isNumber(target) || utils.type.isString(target)) {
     ret = null;
   } else {
     ret = {};
+    ret.__proto__ = Object.create(EventEmitter.prototype);
   }
 
   if (ret) {
-    ret.__proto__ = Object.create(EventEmitter.prototype);
-    
     Object.keys(target).forEach(function(key) {
       var result = Agent(target[key], ret);
 

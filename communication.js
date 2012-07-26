@@ -2,6 +2,7 @@ var logger  = require("./logger");
 var thRee   = require("./three");
 
 /* privates */
+var LOG_LIMIT = 15;
 var logs = [], com = {};
 
 var say = function(str) {
@@ -44,6 +45,7 @@ thRee.exts.say = function(user) {
 
   /* must be JSON */
   logs.push({ name: user.name, text: message, time: now, type: "history" });
+  if (logs.length > LOG_LIMIT) logs.shift();
 
   Object.keys(thRee.users).forEach(function(key) {
     var guy = thRee.users[key];
@@ -90,7 +92,7 @@ com.logs = function(num) {
   var len = logs.length;
   var ret = [];
 
-  num = num || 1;
+  num = num || LOG_LIMIT;
   start = len - num;
   start = start < 0 ? 0 : start;
 

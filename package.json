@@ -1,0 +1,15 @@
+{
+  "name": "thRee",
+  "subdomain": "caasi.thRee",
+  "scripts": {
+    "start": "server.js"
+  },
+  "version": "0.1.0-12",
+  "engines": {
+    "node": "0.6.x"
+  },
+  "dependencies": {
+    "socket.io": "0.9.x",
+    "winston": "0.6.x"
+  }
+}

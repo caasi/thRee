@@ -1,8 +1,9 @@
 var EventEmitter = require("events").EventEmitter;
 
 User = function(name) {
+  var _name = name || "";
+
   var instance = {
-    name: name || "John Doe",
     in: function(cmd) {
       this.emit("in", cmd);
       return this;
@@ -12,6 +13,21 @@ User = function(name) {
       return this;
     }
   };
+
+  Object.defineProperty(
+    instance,
+    "name",
+    {
+      enumerable: true,
+      get: function() {
+        return _name;
+      },
+      set: function(str) {
+        _name = str;
+        instance.emit("bubble", { type: "set", keypath: ["name"], args: [str] });
+      }
+    }
+  );
 
   instance.__proto__ = Object.create(EventEmitter.prototype);
 

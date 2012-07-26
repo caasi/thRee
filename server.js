@@ -1,6 +1,6 @@
 var assert    = require("assert");
 var fs        = require("fs");
-var io        = require("socket.io").listen(8081, { "log level": 0 });
+var io        = require("socket.io").listen(80, { "log level": 3 });
 var utils     = require("./utils");
 var logger    = require("./logger");
 var User      = require("./user");
@@ -12,28 +12,11 @@ var com       = require("./communication");
                 require("./simple");
 var welcome;
 
-io.set("authorization", function (handshakeData, callback) {
-  var cookies = {};
-
-  /* parse cookies */
-  if (handshakeData.headers.cookie) {
-    handshakeData.headers.cookie.split(";").forEach(function (cookie) {
-      var parts = cookie.split("=");
-      cookies[parts[0].trim()] = (parts[1] || "").trim();
-    });
-  }
-
-  /* client will remember username and send it by cookie */
-  handshakeData.name = cookies.name;
-
-  callback(null, true);
-});
-
 io.sockets.on("connection", function(socket) {
   /* ask client for rpcs with namespace */
   socket.on("thRee", function(o) {
     var client = DObject.interface(DObject.validate(o));
-    var user = User(socket.handshake.name || new Buffer(socket.id).toString("base64").substring(0, 8));
+    var user = User(o.prev_name || new Buffer(socket.id).toString("base64").substring(0, 8));
 
     socket.on("disconnect", function() {
       thRee.self.say(user.name + " has logged out.");
@@ -42,6 +25,12 @@ io.sockets.on("connection", function(socket) {
 
     client.on("bubble", function(cmd) {
       socket.emit("thRee.cmd", cmd);
+    });
+
+    user.on("bubble", function(cmd) {
+      if (cmd.type === "set" && cmd.keypath[cmd.keypath.length - 1] === "name") {
+        client.name(cmd.args[0]);
+      }
     });
 
     user.on("out", function(log) {

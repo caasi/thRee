@@ -1,6 +1,6 @@
 var assert    = require("assert");
 var fs        = require("fs");
-var io        = require("socket.io").listen(80, { "log level": 3 });
+var io        = require("socket.io").listen(80, { "log level": 0 });
 var utils     = require("./utils");
 var logger    = require("./logger");
 var User      = require("./user");

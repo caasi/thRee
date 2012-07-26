@@ -1,5 +1,5 @@
+var Ree   = require("ree");
 var utils = require("./utils");
-var Agent = require("./agent");
 
 var validate = function(o) {
   var ret;
@@ -51,10 +51,10 @@ var expose = function(o) {
 };
 
 var DObject = function(o) {
-  var agent = Agent(o);
+  var agent = Ree(o);
 
   agent.exec = function(cmd) {
-    return Agent.exec(this, cmd);
+    return Ree.exec(this, cmd);
   };
 
   agent.expose = function() {
@@ -65,10 +65,10 @@ var DObject = function(o) {
 };
 
 DObject.interface = function(o) {
-  var agent = Agent(o);
+  var agent = Ree(o);
 
   agent.exec = function(cmd) {
-    return Agent.exec(o, cmd);
+    return Ree.exec(o, cmd);
   }
 
   return agent;

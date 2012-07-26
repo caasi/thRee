@@ -4,11 +4,12 @@
   "scripts": {
     "start": "server.js"
   },
-  "version": "0.1.0-13",
+  "version": "0.1.1",
   "engines": {
-    "node": "0.6.x"
+    "node": ">=0.6"
   },
   "dependencies": {
+    "ree": "*",
     "socket.io": "0.9.x",
     "winston": "0.6.x"
   }

@@ -1,10 +1,10 @@
 var assert    = require("assert");
 var fs        = require("fs");
 var io        = require("socket.io").listen(80, { "log level": 0 });
+var Ree       = require("ree");
 var utils     = require("./utils");
 var logger    = require("./logger");
 var User      = require("./user");
-var Agent     = require("./agent");
 var DObject   = require("./dobject");
 var thRee     = require("./three");
 var com       = require("./communication");

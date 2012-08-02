@@ -13,5 +13,6 @@ Depends on
 ToDo
 ----
 
+*   server-side game of life
 *   user list
 *   exts: admin

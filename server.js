@@ -1,6 +1,6 @@
 var assert    = require("assert");
 var fs        = require("fs");
-var io        = require("socket.io").listen(80, { "log level": 0 });
+var io        = require("socket.io").listen(8081, { "log level": 0 });
 var Ree       = require("ree");
 var utils     = require("./utils");
 var logger    = require("./logger");
@@ -10,12 +10,25 @@ var thRee     = require("./three");
 var com       = require("./communication");
                 require("./basic");
                 require("./simple");
+var Life      = require("./life");
 var welcome;
+
+var gol = Life(10, 5);
+var aol = Ree(gol);
+
+// buggy if you mix original object and agent object
+aol.born(4, 1);
+aol.born(4, 2);
+aol.born(4, 3);
+
+setInterval(function() {
+  aol.tick();
+}, 1000);
 
 io.sockets.on("connection", function(socket) {
   /* ask client for rpcs with namespace */
   socket.on("thRee", function(o) {
-    var client = DObject.interface(DObject.validate(o));
+    var client = Ree(DObject.validate(o));
     var user = User(o.prev_name || new Buffer(socket.id).toString("base64").substring(0, 8));
 
     socket.on("disconnect", function() {
@@ -61,6 +74,18 @@ io.sockets.on("connection", function(socket) {
       thRee.self.
         msg(user, welcome).
         say(user.name + " has logged in.");
+    }
+  });
+
+  socket.emit("life", DObject.expose(gol));
+
+  socket.on("life.cmd", function(cmd) {
+    Ree.exec(aol, cmd);
+  });
+
+  aol.on("bubble", function(cmd) {
+    if (cmd.type === "set") {
+      socket.emit("life.cmd", cmd);
     }
   });
 });

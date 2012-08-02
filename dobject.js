@@ -50,29 +50,7 @@ var expose = function(o) {
   return ret;
 };
 
-var DObject = function(o) {
-  var agent = Ree(o);
-
-  agent.exec = function(cmd) {
-    return Ree.exec(this, cmd);
-  };
-
-  agent.expose = function() {
-    return expose(o);
-  };
-
-  return agent;
-};
-
-DObject.interface = function(o) {
-  var agent = Ree(o);
-
-  agent.exec = function(cmd) {
-    return Ree.exec(o, cmd);
-  }
-
-  return agent;
-};
+var DObject = {};
 
 DObject.validate = validate;
 DObject.expose = expose;

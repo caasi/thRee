@@ -1,14 +1,10 @@
 var Ree   = require("ree");
-var utils = require("./utils");
+var _     = require("underscore")._;
 
 var validate = function(o) {
   var ret;
 
-  if (Array.isArray(o)) {
-    ret = o;
-  } else if (utils.type.isFunction(o)) {
-    ret = o;
-  } else if (utils.type.isNumber(o) || utils.type.isString(o)) {
+  if (_.isArray(o) || _.isNumber(o) || _.isString(o) || _.isBoolean(o)) {
     ret = o;
   } else {
     if (o.type && o.type === "function") {
@@ -18,7 +14,7 @@ var validate = function(o) {
     }
   }
 
-  if (utils.type.isFunction(o) || utils.type.isObject(o)) {
+  if (_.isFunction(o) || _.isObject(o)) {
     Object.keys(o).forEach(function(key) {
       if (key === "type") return;
       ret[key] = validate(o[key]);
@@ -31,12 +27,10 @@ var validate = function(o) {
 var expose = function(o) {
   var ret;
 
-  if (Array.isArray(o)) {
+  if (_.isArray(o) || _.isNumber(o) || _.isString(o) || _.isBoolean(o)) {
     ret = o;
-  } else if (utils.type.isFunction(o)) {
+  } else if (_.isFunction(o)) {
     ret = { type: "function" };
-  } else if (utils.type.isNumber(o) || utils.type.isString(o)) {
-    ret = o;
   } else {
     ret = {};
   }

@@ -15,14 +15,14 @@ var Life = function(width, height) {
   }
 
   _setNeighbors = function(x, y, n) {
-    x = x % ret.width;
-    y = y % ret.height;
+    x = (ret.width + x) % ret.width;
+    y = (ret.height + y) % ret.height;
     _neighbors[x + y * ret.width] = n;
   };
 
   _getNeighbors = function(x, y) {
-    x = x % ret.width;
-    y = y % ret.height;
+    x = (ret.width + x) % ret.width;
+    y = (ret.height + y) % ret.height;
     return _neighbors[x + y * ret.width];
   };
 
@@ -56,20 +56,28 @@ var Life = function(width, height) {
   };
 
   ret.setWorld = function(x, y, state) {
-    x = x % this.width;
-    y = y % this.height;
+    x = (this.width + x) % this.width;
+    y = (this.height + y) % this.height;
     this.world[x + y * this.width] = state;
     _judge(x, y, state ? 1 : -1);
   };
 
   ret.getWorld = function(x, y) {
-    x = x % this.width;
-    y = y % this.height;
+    x = (this.width + x) % this.width;
+    y = (this.height + y) % this.height;
     return this.world[x + y * this.width];
   };
 
   ret.born = function(x, y) {
     this.setWorld(x, y, true);
+  };
+
+  ret.glider = function(x, y) {
+    this.setWorld(x - 1, y - 1, true);
+    this.setWorld(x, y, true);
+    this.setWorld(x + 1, y, true);
+    this.setWorld(x - 1, y + 1, true);
+    this.setWorld(x, y + 1, true);
   };
 
   ret.die = function(x, y) {

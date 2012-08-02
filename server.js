@@ -13,17 +13,13 @@ var com       = require("./communication");
 var Life      = require("./life");
 var welcome;
 
-var gol = Life(10, 5);
+var gol = Life(40, 30);
 var aol = Ree(gol);
 
 // buggy if you mix original object and agent object
-aol.born(4, 1);
-aol.born(4, 2);
-aol.born(4, 3);
-
 setInterval(function() {
   aol.tick();
-}, 1000);
+}, 66);
 
 io.sockets.on("connection", function(socket) {
   /* ask client for rpcs with namespace */

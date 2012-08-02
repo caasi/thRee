@@ -26,8 +26,10 @@ io.sockets.on("connection", function(socket) {
   socket.on("thRee", function(o) {
     var client = Ree(DObject.validate(o));
     var user = User(o.prev_name || new Buffer(socket.id).toString("base64").substring(0, 8));
+    var emitLifeCommand;
 
     socket.on("disconnect", function() {
+      aol.off(emitLifeCommand);
       thRee.self.say(user.name + " has logged out.");
       thRee.leave(socket.id);
     });
@@ -79,11 +81,13 @@ io.sockets.on("connection", function(socket) {
     Ree.exec(aol, cmd);
   });
 
-  aol.on("bubble", function(cmd) {
+  emitLifeCommand = function(cmd) {
     if (cmd.type === "set") {
       socket.emit("life.cmd", cmd);
     }
-  });
+  };
+
+  aol.on("bubble", emitLifeCommand);
 });
 
 logger.chat("ready");

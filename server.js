@@ -13,7 +13,7 @@ var com       = require("./communication");
 var Life      = require("./life");
 var welcome;
 
-var gol = Life(40, 30);
+var gol = Life(20, 20);
 var aol = Ree(gol);
 
 // buggy if you mix original object and agent object
@@ -29,7 +29,7 @@ io.sockets.on("connection", function(socket) {
     var emitLifeCommand;
 
     socket.on("disconnect", function() {
-      aol.off(emitLifeCommand);
+      if (emitLifeCommand) aol.off(emitLifeCommand);
       thRee.self.say(user.name + " has logged out.");
       thRee.leave(socket.id);
     });

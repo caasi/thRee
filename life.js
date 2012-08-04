@@ -56,10 +56,14 @@ var Life = function(width, height) {
   };
 
   ret.setWorld = function(x, y, state) {
+    var index;
     x = (this.width + x) % this.width;
     y = (this.height + y) % this.height;
-    this.world[x + y * this.width] = state;
-    _judge(x, y, state ? 1 : -1);
+    index = x + y * this.width;
+    if (this.world[index] !== state) {
+      this.world[index] = state;
+      _judge(x, y, state ? 1 : -1);
+    }
   };
 
   ret.getWorld = function(x, y) {
@@ -93,9 +97,11 @@ var Life = function(width, height) {
         // lame code XD
         isAlive = self.getWorld(x, y);
         neighbors = _getNeighbors(x, y);
-        if (isAlive && neighbors < 2) willDie.push({ x: x, y: y });
-        if (isAlive && neighbors > 3) willDie.push({ x: x, y: y });
-        if (!isAlive && neighbors === 3) willBorn.push({ x: x, y: y });
+        if (isAlive) {
+          if (neighbors < 2 || neighbors > 3) willDie.push({ x: x, y: y });
+        } else if (neighbors === 3) {
+          willBorn.push({ x: x, y: y });
+        }
       }
     }
 

@@ -14,6 +14,6 @@ Depends on
 ToDo
 ----
 
-*   server-side game of life
+*   find out why game of life slowing down
 *   user list
 *   exts: admin

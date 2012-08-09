@@ -17,4 +17,4 @@ ToDo
 *   find out why game of life slowing down
 *   user list
 *   exts: admin
-*   [Evolution](./blob/master/EVO.md)
+*   [Evolution](./thRee/blob/master/EVO.md)
